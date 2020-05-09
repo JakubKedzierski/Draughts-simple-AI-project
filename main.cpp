@@ -4,12 +4,10 @@
 
 using namespace std;
 
-int main()
+int WinMain()
 {  
 	checkers game;
 	game.InitGame();
 
-
-	system("pause");
 	return 0;
 }

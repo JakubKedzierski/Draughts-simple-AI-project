@@ -4,22 +4,29 @@
 #include <vector>
 using namespace sf;
 
-struct NodeData {
+int heuristicForCheckers(Board, bool);
+
+
+class TreeNode {
+public:
 	int heuristicGrade;
 	Board boardStatus;
 	moveID move;
 	bool Player;
-};
 
-class TreeNode {
 	int depth;  // liczba krokow liczona do przodu
-	NodeData data;
 	vector<TreeNode> sons;
 	bool FewBeatings;
-public:
-	TreeNode(){}
-	TreeNode(int steps, Board b) { data.boardStatus = b; depth = steps; data.Player = false; FewBeatings = false; MakeTree(); }
+
+	TreeNode() {}
+	TreeNode(int steps, Board b) {
+		boardStatus = b; depth = steps; Player = false; FewBeatings = false; 
+		heuristicGrade = heuristicForCheckers(b,Player); MakeTree();
+	}
 	void MakeTree();
+	vector<TreeNode> GetSons() { return sons; }
+	int Depth() { return depth; }
+
 };
 
 
@@ -28,5 +35,8 @@ class checkersAI {
 	Board tempBoard;
 public:
 	checkersAI() :tempBoard() {}
-	int GetAIindexToMove(Board);
+	moveID GetAIindexToMove(Board);
+	moveID minmax(TreeNode tree);
 };
+
+

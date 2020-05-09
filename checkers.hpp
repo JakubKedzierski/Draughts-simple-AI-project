@@ -8,7 +8,7 @@ class checkers
 {
 private:
 	RenderWindow window; // okno do renderowania grafiki
-    Board board; // plansza
+    BoardGraphic board; // plansza
 	Event event; // zmienna do pobierania zdarzen
 	Sprite image; // zmienna do rysowania szachownicy
 	bool Player; // wybor gracza: true - biale , false - czarne (czerwone)
@@ -16,8 +16,8 @@ private:
 	bool FirstTick = false, SecondTick = false;
 	bool FewBeatings=false;
 public:
-	Board GetBoard() { return board; }
-	checkers() :board(true), window(VideoMode(WindowSize, WindowSize), "Warcaby"), Player(true) {}
+	BoardGraphic GetBoard() { return board; }
+	checkers() :board(true), window(VideoMode(WindowSize, WindowSize), "Warcaby"), Player(true) { window.setPosition(Vector2i(490, -8)); }
 	
 	void InitGame();
 	void Play();

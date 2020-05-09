@@ -7,44 +7,40 @@ Pawn::Pawn(sf::Vector2f pos, PawnType type1,bool mode) {
 	type = type1;
 	if (mode) {
 		shape.setRadius(45);
-		shape.setPosition(10 + y * 110.75, 10 + x * 110.75);
+		shape.setPosition(101 + y * SquareSize, 101 + x * SquareSize);
 		switch (type1) {
 		case BlackMan: {
-			shape.setFillColor(sf::Color(255, 0, 0));
+			texture = new Texture();
+			if (!texture->loadFromFile("blackpawn.png"))
+				cerr << "Nie udalo sie zaladowac whitemana";
+			shape.setTexture(texture);
 			break;
 		}
 
 		case WhiteMan: {
-			shape.setFillColor(sf::Color(255, 255, 255));
+			texture = new Texture();
+			if (!texture->loadFromFile("whitepawn.png"))
+				cerr << "Nie udalo sie zaladowac whitemana";
+			shape.setTexture(texture);
 			break;
 		}
 
 		case WhiteKing: {
+			texture = new Texture();
+			if (!texture->loadFromFile("whiteking.png"))
+				cerr << "Nie udalo sie zaladowac whitekinga";
+			shape.setTexture(texture);
 			break;
 		}
 
 		case BlackKing: {
+			texture = new Texture();
+			if (!texture->loadFromFile("blackking.png"))
+				cerr << "Nie udalo sie zaladowac whitekinga";
+			shape.setTexture(texture);
 			break;
 		}
 
 		}
 	}
-}
-
-void Pawn::Upgrade() {
-	if (type == BlackMan) {
-		type = BlackKing;
-		texture = new Texture();
-		if (!texture->loadFromFile("blackking2.jpg"))
-			cerr << "Nie udalo sie zaladowac blackkinga";
-		shape.setTexture(texture);
-	}
-	else if (type == WhiteMan) {
-		type = WhiteKing;
-		texture = new Texture();
-		if (!texture->loadFromFile("whiteking.png"))
-			cerr << "Nie udalo sie zaladowac whitekinga";
-		shape.setTexture(texture);
-	}
-
 }

@@ -21,28 +21,32 @@ public:
 };
 
 
+class Board { // szachownica obliczeniowa bez graficznej oprawy
+public:	
+	PawnType board[8][8];
+	void Move(moveID m);
+	void PrintToStream();
+	vector<moveID> CheckForBeatings(bool);
+	vector<moveID> PossibleMove(bool);
+	PawnType operator()(int i, int j) { return board[i][j]; }
+	bool side(int i,int j) { if (board[i][j] == BlackMan || board[i][j] == BlackKing) return false; else return true; }
+};
 
-class Board{
-    Pawn board[8][8]; 
+class BoardGraphic{ // tu by sie grafika robila
+	Board small;
+	Pawn board[8][8]; 
 	Texture scene;
-public:
-    Board();
-	Board(bool);
-    vector<moveID> PossibleMove(bool);
+public: 
+	Board mathBoard()const { return small; }
+	BoardGraphic();
+	BoardGraphic(bool);
     void Move(moveID);
-    void PrintToStream();
     Pawn &GetPawn(int x,int y){return board[x][y];}
 	Pawn GetPawn(int x, int y)const{ return board[x][y]; }
-	vector<moveID> CheckForBeatings(bool);
 	Texture &GetTexture() { return scene; }
+	void Upgrade(int i, int j) { 
+		if (board[i][j].Type() == BlackMan) { board[i][j]= Pawn(sf::Vector2f(i, j), BlackKing, true);}
+		else{ board[i][j] = Pawn(sf::Vector2f(i, j), WhiteKing, true); }
+	}
 };
 
-/*
-class graphics {
-	Board board[8][8];
-	Texture *texture[2];
-	CircleShape shape[4];
-public:
-
-};
-*/

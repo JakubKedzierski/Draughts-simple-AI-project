@@ -64,7 +64,7 @@ void checkers::CheckForTicking() {
 		if (!FirstTick && !SecondTick) {
 			moves.x = Mouse::getPosition(window).y;
 			moves.y = Mouse::getPosition(window).x;
-			int x = moves.x / (WindowSize / 8), y = moves.y / (WindowSize / 8); // ustalenie polozenia na szachownicy
+			int x = (moves.x-101) / SquareSize, y = (moves.y-101) / SquareSize; // ustalenie polozenia na szachownicy
 
 			if (board.GetPawn(x, y).Type() != Empty)
 				board.GetPawn(x, y).tick();
@@ -98,11 +98,11 @@ void checkers::Play(){
 		Move(moves);
 		checkForGameOver();
 	}
-
+	
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (board.GetPawn(i, j).Type() != Empty) {
-				window.draw(board.GetPawn(i, j).GetTexture());
+				window.draw(board.GetPawn(i, j).GetTexture()); // tu jest zle
 			}
 		}
 	}
@@ -131,15 +131,15 @@ void checkers::Move(moveID m) {
 bool checkers::CheckAvailableMoves(moveID m) {
 	vector<moveID> Possible;
 	
-	Possible = board.CheckForBeatings(Player);  // gdy sa jakies bicia sa one obowiazkowe
+	Possible = board.mathBoard().CheckForBeatings(Player);  // gdy sa jakies bicia sa one obowiazkowe
 	if (Possible.size() > 0) FewBeatings = true; else FewBeatings = false;
 
 	if (!Possible.size()) {
 		if (Player) {
-			Possible = board.PossibleMove(true);
+			Possible = board.mathBoard().PossibleMove(true);
 		}
 		else {
-			Possible = board.PossibleMove(false);
+			Possible = board.mathBoard().PossibleMove(false);
 		}
 	}
 
@@ -157,37 +157,27 @@ bool checkers::CheckAvailableMoves(moveID m) {
 
 void checkers::CheckForPlayer() {
 	vector<moveID> Possible;
-	Possible = board.CheckForBeatings(Player);
+	Possible = board.mathBoard().CheckForBeatings(Player);
 	if (!(FewBeatings && Possible.size() > 0))  Player = !Player;
 }
 
 void checkers::moveCPU() {
 	vector<moveID> Possible;
 
-	high_resolution_clock::time_point t1 = high_resolution_clock::now();
-
-	Possible = board.CheckForBeatings(Player);  // gdy sa jakies bicia sa one obowiazkowe
+	Possible = board.mathBoard().CheckForBeatings(Player);  // gdy sa jakies bicia sa one obowiazkowe
 	if (Possible.size() > 0) {
 		FewBeatings = true;
 	}
 	else {
 		FewBeatings = false;
-		Possible = board.PossibleMove(Player);
+		Possible = board.mathBoard().PossibleMove(Player);
 	}
 
-	Pawn* p;
-	for(int i=100;i>0;i--) p=new Pawn(sf::Vector2f(6, i), WhiteMan,false);
-	
-	high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-
-	cout << time_span.count() * 1000 << endl;
-
 	checkersAI ai;
-	ai.GetAIindexToMove(board);
+	
 	
 	if(Possible.size()!=0)
-	board.Move(Possible[rand()%Possible.size()]);
+	board.Move(ai.GetAIindexToMove(board.mathBoard()));
 	
 	Possible.clear();
 	CheckForPlayer();
