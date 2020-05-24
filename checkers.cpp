@@ -15,24 +15,13 @@ void checkers::InitGame() {
 }
 
 void checkers::checkForGameOver() {
-	bool iterator1=false,iterator2=false;
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			if (board.GetPawn(i,j).Type() != Empty) {
-				if (board.GetPawn(i, j).side()) {
-					iterator1 = true;
-				}
-				else {
-					iterator2 = true;
-				}
-			}
-		}
-	}
+	if (!board.mathBoard().IsAny(true)) EndUpGame(false);
 
-	if ( (!iterator1) || (!iterator2) ) EndUpGame();
+	if (!board.mathBoard().IsAny(false)) EndUpGame(true);
+
 }
 
-void checkers::EndUpGame() {
+void checkers::EndUpGame(bool endStatus) {
 	RenderWindow EndWin(VideoMode(500, 500), "Warcaby ");
 	Text endText;
 	sf::Font font;
@@ -40,7 +29,13 @@ void checkers::EndUpGame() {
 	if (!font.loadFromFile("font.ttf"))cerr << " Brak pliku font.ttf w dysku z gra";
 	
 	endText.setFont(font);
-	endText.setString("Koniec gry !!! ");
+	if (endStatus) {
+		endText.setString("Koniec gry !!! Wygraly biale ");
+	}
+	else {
+		endText.setString("Koniec gry !!! Wygraly czarne ");
+	}
+
 	endText.setCharacterSize(20);
 	endText.setFillColor(sf::Color::Red);
 
@@ -64,11 +59,13 @@ void checkers::CheckForTicking() {
 		if (!FirstTick && !SecondTick) {
 			moves.x = Mouse::getPosition(window).y;
 			moves.y = Mouse::getPosition(window).x;
-			int x = (moves.x-101) / SquareSize, y = (moves.y-101) / SquareSize; // ustalenie polozenia na szachownicy
 
-			if (board.GetPawn(x, y).Type() != Empty)
-				board.GetPawn(x, y).tick();
-
+			for (int i = 0; i < 8; i++) {
+				for (int j = 0; j < 8; j++) {
+						board.GetPawn(i, j).tick(moves.x,moves.y);
+				}
+			}
+			
 			FirstTick = true;
 		}
 		else if (FirstTick) {
@@ -109,6 +106,7 @@ void checkers::Play(){
 
 	if (!Player) {
 		moveCPU();
+		checkForGameOver();
 	}
 
      window.display();
@@ -123,7 +121,7 @@ void checkers::Move(moveID m) {
 	if (m.x != m.x1 && m.y != m.y1)	{
 		if (CheckAvailableMoves(m)){	
 			board.Move(m);
-			CheckForPlayer();
+			CheckForPlayer(m);
 		}
 	}
 }
@@ -155,31 +153,31 @@ bool checkers::CheckAvailableMoves(moveID m) {
 	return false;
 }
 
-void checkers::CheckForPlayer() {
+void checkers::CheckForPlayer(moveID prevMove) {
 	vector<moveID> Possible;
 	Possible = board.mathBoard().CheckForBeatings(Player);
-	if (!(FewBeatings && Possible.size() > 0))  Player = !Player;
+	
+	for (auto newBeat : Possible) {
+		if (prevMove.y1 == newBeat.y && prevMove.x1 == newBeat.x) {
+			if (FewBeatings) {
+				return;
+			}
+		}
+	}
+
+	Player = !Player;
 }
 
 void checkers::moveCPU() {
-	vector<moveID> Possible;
 
-	Possible = board.mathBoard().CheckForBeatings(Player);  // gdy sa jakies bicia sa one obowiazkowe
-	if (Possible.size() > 0) {
-		FewBeatings = true;
-	}
-	else {
-		FewBeatings = false;
-		Possible = board.mathBoard().PossibleMove(Player);
-	}
+	vector<moveID> Possible;
+	Possible = board.mathBoard().CheckForBeatings(Player);
+	if (Possible.size() > 0) FewBeatings = true;
 
 	checkersAI ai;
-	
-	
-	if(Possible.size()!=0)
-	board.Move(ai.GetAIindexToMove(board.mathBoard()));
-	
-	Possible.clear();
-	CheckForPlayer();
+	moveID m = ai.GetAIindexToMove(board.mathBoard());
+	board.Move(m);
+
+	CheckForPlayer(m);
 		
 }

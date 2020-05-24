@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 using namespace sf;
+const int Infty = 9999999;
 
 int heuristicForCheckers(Board, bool);
 
@@ -13,7 +14,6 @@ public:
 	Board boardStatus;
 	moveID move;
 	bool Player;
-
 	int depth;  // liczba krokow liczona do przodu
 	vector<TreeNode> sons;
 	bool FewBeatings;
@@ -21,12 +21,12 @@ public:
 	TreeNode() {}
 	TreeNode(int steps, Board b) {
 		boardStatus = b; depth = steps; Player = false; FewBeatings = false; 
-		heuristicGrade = heuristicForCheckers(b,Player); MakeTree();
+		MakeTree();
 	}
 	void MakeTree();
 	vector<TreeNode> GetSons() { return sons; }
 	int Depth() { return depth; }
-
+	void CheckForPlayer(moveID prevMove);
 };
 
 
@@ -36,7 +36,7 @@ class checkersAI {
 public:
 	checkersAI() :tempBoard() {}
 	moveID GetAIindexToMove(Board);
-	moveID minmax(TreeNode tree);
 };
 
 
+int minmax(TreeNode tree);

@@ -3,7 +3,7 @@ using namespace std;
 using namespace sf;
 
 Pawn::Pawn(sf::Vector2f pos, PawnType type1,bool mode) {
-	x = pos.x; y = pos.y;
+	auto x = pos.x, y = pos.y;
 	type = type1;
 	if (mode) {
 		shape.setRadius(45);

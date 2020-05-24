@@ -5,7 +5,7 @@ using namespace std;
 
 void moveID::TransformID() {
 	x -= 101; y -= 101; x1 -= 101; y1 -= 101;
-	x /= squareFrame; y /= squareFrame; x1 /= squareFrame; y1 /= squareFrame;
+	x /= SquareSize; y /= SquareSize; x1 /= SquareSize; y1 /= SquareSize;
 }
 BoardGraphic::BoardGraphic() {
 	for (int i = 0; i < 8; i++) {
@@ -19,20 +19,20 @@ BoardGraphic::BoardGraphic(bool mode){
 
 	for(int i=0;i<8;i++){
         for(int j=0;j<8;j++){
-			board[i][j].ChangeType(Empty); small.board[i][j] = Empty;
+			board[i][j].ChangeType(Empty); small.ChangeType(i, j, Empty);
         }
     }
 
     for(int i=1;i<8;i+=2){
-		board[0][i] = Pawn(sf::Vector2f(0, i), BlackMan,mode); small.board[0][i] = BlackMan;
-		board[2][i] = Pawn(sf::Vector2f(2, i), BlackMan, mode); small.board[2][i] = BlackMan;
-		board[6][i] = Pawn(sf::Vector2f(6, i), WhiteMan, mode); small.board[6][i] = WhiteMan;
+		board[0][i] = Pawn(sf::Vector2f(0, i), BlackMan, mode); small.ChangeType(0, i, BlackMan);
+		board[2][i] = Pawn(sf::Vector2f(2, i), BlackMan, mode); small.ChangeType(2, i, BlackMan); 
+		board[6][i] = Pawn(sf::Vector2f(6, i), WhiteMan, mode); small.ChangeType(6, i, WhiteMan); 
     }    
 
     for(int i=0;i<8;i+=2){
-		board[1][i] = Pawn(sf::Vector2f(1, i), BlackMan, mode); small.board[1][i] = BlackMan;
-		board[5][i] = Pawn(sf::Vector2f(5, i), WhiteMan, mode); small.board[5][i] = WhiteMan;
-		board[7][i] = Pawn(sf::Vector2f(7, i), WhiteMan, mode); small.board[7][i] = WhiteMan;
+		board[1][i] = Pawn(sf::Vector2f(1, i), BlackMan, mode); small.ChangeType(1, i, BlackMan); 
+		board[5][i] = Pawn(sf::Vector2f(5, i), WhiteMan, mode); small.ChangeType(5, i, WhiteMan); 		
+		board[7][i] = Pawn(sf::Vector2f(7, i), WhiteMan, mode); small.ChangeType(7, i, WhiteMan); 
     }
 
 	if (!scene.loadFromFile("szachownica1.jpg")) {
@@ -90,7 +90,6 @@ void BoardGraphic::Move(moveID m){
 	
 	if (m.x1 == 0 || m.x1 == 7) {
 		Upgrade(m.x1, m.y1);
-		//board[m.x1][m.y1].Upgrade();
 	}
 
 }
@@ -223,5 +222,19 @@ vector<moveID> Board::CheckForBeatings(bool Player) {
 		}
 	}
 	return beating;
+}
+
+bool Board::IsAny(bool type) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			if (type) {
+				if (board[i][j] == WhiteMan || board[i][j] == WhiteKing) return true;
+			}
+			else {
+				if (board[i][j] == BlackMan || board[i][j] == BlackKing) return true;
+			}
+		}
+	}
+	return false;
 }
 

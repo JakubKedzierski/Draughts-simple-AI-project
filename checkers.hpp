@@ -23,8 +23,8 @@ public:
 	void Play();
 	void CheckForTicking();
 	void checkForGameOver();
-	void EndUpGame();
-	void CheckForPlayer();
+	void EndUpGame(bool);
+	void CheckForPlayer(moveID);
 	void moveCPU();
 
 	// funkcje zwiazane z ruchem
