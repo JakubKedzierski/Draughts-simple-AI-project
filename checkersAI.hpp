@@ -1,42 +1,36 @@
 #pragma once
 #include "board.hpp"
-#include <SFML/Graphics.hpp>
 #include <vector>
-using namespace sf;
-const int Infty = 9999999;
+const long int Infty = 9999999;
 
-int heuristicForCheckers(Board, bool);
-
-
+// Wierzcholki drzewa mo¿liwych rozwi¹zañ gry (ruchów do przodu)
 class TreeNode {
 public:
-	int heuristicGrade;
-	Board boardStatus;
-	moveID move;
-	bool Player;
-	int depth;  // liczba krokow liczona do przodu
-	vector<TreeNode> sons;
-	bool FewBeatings;
+	/* Informacje przechowywane w wierzcho³ku drzewa : */
 
+	int heuristicGrade;  // wartoœæ danego wierzcho³ka obliczona przez funkcje heurystyczna / ocena danego ruchu
+	Board boardStatus;   // status na planszy
+	moveID move;		 // ruch który jest analizowany w danym wierzcho³ku
+	bool Player;		 // gracz który rusza siê w danym wierzcho³ku
+	int depth;			 // liczba krokow liczona do przodu od danego wierzcho³ka
+	vector<TreeNode> sons;  // "synowie" wierzcho³ka - mo¿liwe rozwi¹zania gry po wykonaniu ruchu w tym wierzcho³ku
+	bool FewBeatings;	 // zmienna do zapamiêtywania ewentualnego wielokrotnego bicia
+	
+	/***************************************************/
+	
 	TreeNode() {}
+
+	/* Tworzenie drzewa mo¿liwych rozwi¹zañ */
 	TreeNode(int steps, Board b) {
-		boardStatus = b; depth = steps; Player = false; FewBeatings = false; 
-		MakeTree();
+		boardStatus = b; depth = steps; Player = false; FewBeatings = false;  
+		MakeSons();
 	}
-	void MakeTree();
-	vector<TreeNode> GetSons() { return sons; }
-	int Depth() { return depth; }
-	void CheckForPlayer(moveID prevMove);
+	
+	void MakeSons(); // Tworzenie "synów " czyli kolejnych kroków, mo¿liwych rozwi¹zañ gry
+	void CheckForPlayer(moveID prevMove); // Zmiana gracza (czasami tej zmiany nie bêdzie dla kolejnego ruchu (wielokrotne bicie)
 };
 
 
-
-class checkersAI {
-	Board tempBoard;
-public:
-	checkersAI() :tempBoard() {}
-	moveID GetAIindexToMove(Board);
-};
-
-
-int minmax(TreeNode tree);
+moveID GetAImove(Board);  // funkcja zwracaj¹ca ruch wybrany przez algorytm sztucznej inteligencji
+int heuristicForCheckers(Board, bool); // funckja heurystyczna obliczajaca wartoœæ danego wêz³a
+int minmax(TreeNode tree);  // algorytm sztucznej inteligencji - min

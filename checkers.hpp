@@ -1,8 +1,7 @@
 #pragma once
 #include "board.hpp"
-#include <SFML/Graphics.hpp>
 #include "checkersAI.hpp"
-using namespace sf;
+
 
 class checkers
 {

@@ -1,22 +1,24 @@
 #include "checkersAI.hpp"
 
-using namespace std;
-
-moveID checkersAI::GetAIindexToMove(const Board board) {
+/*Funckja zwracajaca najlepszy ruch wybrany przez sztuczn¹ inteligencje*/
+moveID GetAImove(const Board board) {
 	
-	tempBoard = board;
-	TreeNode tree(4,tempBoard);
+	// Tworzenie drzewa rozwiazan na x ruchów
+	TreeNode tree(4,board);
+	// Ruch wybrany przez sztuczna inteligencje (domyœlnie wyrzucam wyj¹tek, na wypadek nieprzewidzianych sytuacji)
 	moveID move(0, 0, 0, 0);
-	int choice=-Infty;
 	
+	int choice=-Infty; // Inicjalizacja wyboru najgorsz¹ mo¿liwoœci¹ dla komputera
+	int tmp; // zmienna pomocznica
 	
-	int tmp;
 	for (auto son : tree.sons) {
-		tmp = minmax(son);
+		tmp = minmax(son);			// dla ka¿dego syna pocz¹tkowego wierzcho³ka przeprowadzam algorytm minmax
+		
 		if (tmp >= choice) {
 			choice = tmp;
-			move = son.move;
+			move = son.move;		// ostateczny wybór ruchu
 		}
+
 	}
 	
 
@@ -59,7 +61,7 @@ int minmax(TreeNode tree) {
 	return choice;
 }
 
-void TreeNode::MakeTree() {
+void TreeNode::MakeSons() {
 	vector<moveID> moves;
 	bool moreBeats=false;
 	
@@ -72,8 +74,8 @@ void TreeNode::MakeTree() {
 		moves = boardStatus.PossibleMove(Player);
 	}
 
-	if (moves.size() == 0 && Player) { heuristicGrade = -Infty; return; }
-	else if (moves.size() == 0) { heuristicGrade = Infty; return;}
+	if (moves.size() == 0 && Player) { heuristicGrade = Infty; return; }
+	else if (moves.size() == 0) { heuristicGrade = -Infty; return;}
 
 	
 	for (auto &choice : moves) {
@@ -91,7 +93,7 @@ void TreeNode::MakeTree() {
 		
 
 		if (temp.depth > 0) {
-			sons.back().MakeTree();
+			sons.back().MakeSons();
 		}
 
 	}
@@ -117,9 +119,6 @@ void TreeNode::CheckForPlayer(moveID prevMove) {
 
 	Player = !Player;
 }
-
-
-
 
 
 // pionek = 50

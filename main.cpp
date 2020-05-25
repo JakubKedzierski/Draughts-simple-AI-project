@@ -1,5 +1,4 @@
 #include <iostream>
-#include "board.hpp"
 #include "checkers.hpp"
 
 using namespace std;

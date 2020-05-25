@@ -1,8 +1,7 @@
 #include "checkers.hpp"
 #include <iostream>
-
 using namespace std;
-using namespace sf;
+
 
 void checkers::InitGame() {
 	while (window.isOpen())
@@ -90,6 +89,11 @@ void checkers::Play(){
 		CheckForTicking();
 	}
 
+	if (!Player) {
+		moveCPU();
+		checkForGameOver();
+	}
+
 	if (FirstTick&&SecondTick) {
 		FirstTick = false; SecondTick = false;
 		Move(moves);
@@ -102,11 +106,6 @@ void checkers::Play(){
 				window.draw(board.GetPawn(i, j).GetTexture()); // tu jest zle
 			}
 		}
-	}
-
-	if (!Player) {
-		moveCPU();
-		checkForGameOver();
 	}
 
      window.display();
@@ -140,6 +139,7 @@ bool checkers::CheckAvailableMoves(moveID m) {
 			Possible = board.mathBoard().PossibleMove(false);
 		}
 	}
+	if (Possible.size() == 0) EndUpGame(false);
 
 	for (int i=0;i<Possible.size();i++)
 	{
@@ -172,10 +172,9 @@ void checkers::moveCPU() {
 
 	vector<moveID> Possible;
 	Possible = board.mathBoard().CheckForBeatings(Player);
-	if (Possible.size() > 0) FewBeatings = true;
+	if (Possible.size() > 0) FewBeatings = true; else FewBeatings = false;
 
-	checkersAI ai;
-	moveID m = ai.GetAIindexToMove(board.mathBoard());
+	moveID m = GetAImove(board.mathBoard());
 	board.Move(m);
 
 	CheckForPlayer(m);

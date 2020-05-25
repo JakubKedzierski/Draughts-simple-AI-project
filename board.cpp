@@ -24,15 +24,15 @@ BoardGraphic::BoardGraphic(bool mode){
     }
 
     for(int i=1;i<8;i+=2){
-		board[0][i] = Pawn(sf::Vector2f(0, i), BlackMan, mode); small.ChangeType(0, i, BlackMan);
-		board[2][i] = Pawn(sf::Vector2f(2, i), BlackMan, mode); small.ChangeType(2, i, BlackMan); 
-		board[6][i] = Pawn(sf::Vector2f(6, i), WhiteMan, mode); small.ChangeType(6, i, WhiteMan); 
+		board[0][i] = Pawn(sf::Vector2f(0, i), BlackMan); small.ChangeType(0, i, BlackMan);
+		board[2][i] = Pawn(sf::Vector2f(2, i), BlackMan); small.ChangeType(2, i, BlackMan); 
+		board[6][i] = Pawn(sf::Vector2f(6, i), WhiteMan); small.ChangeType(6, i, WhiteMan); 
     }    
 
     for(int i=0;i<8;i+=2){
-		board[1][i] = Pawn(sf::Vector2f(1, i), BlackMan, mode); small.ChangeType(1, i, BlackMan); 
-		board[5][i] = Pawn(sf::Vector2f(5, i), WhiteMan, mode); small.ChangeType(5, i, WhiteMan); 		
-		board[7][i] = Pawn(sf::Vector2f(7, i), WhiteMan, mode); small.ChangeType(7, i, WhiteMan); 
+		board[1][i] = Pawn(sf::Vector2f(1, i), BlackMan); small.ChangeType(1, i, BlackMan); 
+		board[5][i] = Pawn(sf::Vector2f(5, i), WhiteMan); small.ChangeType(5, i, WhiteMan); 		
+		board[7][i] = Pawn(sf::Vector2f(7, i), WhiteMan); small.ChangeType(7, i, WhiteMan); 
     }
 
 	if (!scene.loadFromFile("szachownica1.jpg")) {

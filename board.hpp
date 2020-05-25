@@ -1,17 +1,13 @@
 #pragma once
 #include <vector>
-#include <fstream>
 #include <SFML/Graphics.hpp>
 #include "Pawn.hpp"
-#include <chrono>
-using namespace std::chrono;
 using namespace std;
 using namespace sf;
 
 struct moveID {
 public:
 	int x, y, x1, y1;
-	
 	moveID(int X, int Y, int X1, int Y1) { x = X; y = Y; x1 = X1; y1 = Y1;}
 	moveID() { }
 	bool operator==(const moveID &m) { if (m.x == x && m.y == y && m.x1 == x1 && m.y1 == y1) { return true; } else { return false; } }
@@ -45,8 +41,8 @@ public:
 	Pawn GetPawn(int x, int y)const{ return board[x][y]; }
 	Texture &GetTexture() { return scene; }
 	void Upgrade(int i, int j) { 
-		if (board[i][j].Type() == BlackMan) { board[i][j]= Pawn(sf::Vector2f(i, j), BlackKing, true);}
-		else if(board[i][j].Type() == WhiteMan){ board[i][j] = Pawn(sf::Vector2f(i, j), WhiteKing, true); }
+		if (board[i][j].Type() == BlackMan) { board[i][j]= Pawn(sf::Vector2f(i, j), BlackKing);}
+		else if(board[i][j].Type() == WhiteMan){ board[i][j] = Pawn(sf::Vector2f(i, j), WhiteKing); }
 	}
 };
 
