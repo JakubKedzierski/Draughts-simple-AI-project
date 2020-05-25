@@ -4,12 +4,12 @@
 moveID GetAImove(const Board board) {
 	
 	// Tworzenie drzewa rozwiazan na x ruchów
-	TreeNode tree(4,board);
+	TreeNode tree(5,board);
 	// Ruch wybrany przez sztuczna inteligencje (domyœlnie wyrzucam wyj¹tek, na wypadek nieprzewidzianych sytuacji)
 	moveID move(0, 0, 0, 0);
 	
 	int choice=-Infty; // Inicjalizacja wyboru najgorsz¹ mo¿liwoœci¹ dla komputera
-	int tmp; // zmienna pomocznica
+	int tmp; // zmienna pomocnicza
 	
 	for (auto son : tree.sons) {
 		tmp = minmax(son);			// dla ka¿dego syna pocz¹tkowego wierzcho³ka przeprowadzam algorytm minmax
@@ -20,52 +20,57 @@ moveID GetAImove(const Board board) {
 		}
 
 	}
-	
 
 	return move;
 }
 
+/* Algorytm SI - minmax*/
 int minmax(TreeNode tree) {
 	
 	TreeNode ret;
-	int choice=0;
+	int choice;
 
-
+	// Przypisanie odpowienich wartoœci do wyboru (-oo dla maksymalizowanego gracza i oo dla przeciwnika)
 	if (tree.Player) {
-		choice = -Infty;
+		choice = -Infty; 
 	}
 	else {
 		choice = Infty;
 	}
 	
 
-	for (auto son : tree.sons) {
+	for (auto son : tree.sons) {    
 		
 		if (son.Player) {
-			choice = min(son.heuristicGrade, choice);
-			ret = son;
+			if (son.heuristicGrade <= choice) {
+				choice = min(son.heuristicGrade, choice);  // wybor minimalny prowadzacy do mniejszej wartosci koncowej
+				ret = son;
+			}
 		}
 
 		if (!son.Player) {
-			choice = max(son.heuristicGrade, choice);
-			ret = son;
+			if (son.heuristicGrade >= choice) {
+				choice = max(son.heuristicGrade, choice); // wybor maksymalny prowadzacy do wiekszej wartosci koncowej
+				ret = son;
+			}
 		}
 	}
 
 	if (tree.sons.size()) {
-		if (tree.sons[0].depth > 0) {
-			choice += minmax(ret);
+		if (tree.sons[0].depth > 0) {  // dopoki glebokosc w wierzcholku syna > 0
+			choice += minmax(ret);     // powtarzamy algorytm
 		}
 	}
 
 	return choice;
 }
 
+/* Tworzenie synów w danym wierzcho³ku */
 void TreeNode::MakeSons() {
-	vector<moveID> moves;
-	bool moreBeats=false;
+	vector<moveID> moves; // ruch przeprowadzany w danym wierzcho³ku
+	bool moreBeats=false; // zmienna pomocnicza do sprawdzania wielokrotnnego bicia
 	
-	moves = boardStatus.CheckForBeatings(Player);
+	moves = boardStatus.CheckForBeatings(Player);  // sprawdzenie czy s¹ bicia (obowi¹zkowe)
 	if (moves.size() > 0) {
 		moreBeats = true;
 	}
@@ -74,70 +79,67 @@ void TreeNode::MakeSons() {
 		moves = boardStatus.PossibleMove(Player);
 	}
 
-	if (moves.size() == 0 && Player) { heuristicGrade = Infty; return; }
+	if (moves.size() == 0 && Player) { heuristicGrade = Infty; return; } // stany koñcowe w grze 
 	else if (moves.size() == 0) { heuristicGrade = -Infty; return;}
 
 	
-	for (auto &choice : moves) {
+	for (auto &choice : moves) { // wszystkie dostepne ruchy to nowe wierzcho³ki w drzewie
 		TreeNode temp;
-		temp = *this;         // tu zastapic to this 
+		temp = *this;         
 		temp.sons.clear();
-		temp.boardStatus.Move(choice);
-		temp.depth--;
+		temp.boardStatus.Move(choice);   // wykonanie ruchu na analizowanym statusie planszy
+		temp.depth--;                    // po kazdym ruchu obnizamy glebokosc, aby w koncu dojsc do liœci
 		temp.move = choice;
-		temp.heuristicGrade = heuristicForCheckers(temp.boardStatus, temp.Player);
+		temp.heuristicGrade = heuristicForCheckers(temp.boardStatus, temp.Player); // ocena wartosci planszy funckj¹ oceniaj¹c¹
 		
-		temp.CheckForPlayer(move);
-		temp.FewBeatings = moreBeats;
-		sons.push_back(temp);
+		temp.CheckForPlayer(move);      // sprawdzenie czy po ruchu nast¹pi zmiana gracza
+		temp.FewBeatings = moreBeats;	// przypisanie na wypadek wielokrotnego bicia
+		sons.push_back(temp);   // dodawanie nowych wierzcho³ków do drzewa
 		
-
 		if (temp.depth > 0) {
-			sons.back().MakeSons();
+			sons.back().MakeSons();   // jeœli nie doszliœmy do liœci tworzymy nowych synów
 		}
 
 	}
 	moves.clear();
-
-
-	
-	// to po ruchu if  (!(FewBeatings && son.CheckForBeatings(data.Player).size() > 0))  Player = !Player;
-
 }
 
+
+/* Sprawdzenie czy po ruchu nastêpuje zmiana gracza*/
 void TreeNode::CheckForPlayer(moveID prevMove) {
 	vector<moveID> Possible;
 	Possible = boardStatus.CheckForBeatings(Player);
-
 	for (auto newBeat : Possible) {
-		if (prevMove.y1 == newBeat.y && prevMove.x1 == newBeat.x) {
-			if (FewBeatings) {
+		if (prevMove.y1 == newBeat.y && prevMove.x1 == newBeat.x) { 
+			if (FewBeatings) { // gdy po ruchu w którym by³o bicie, mo¿liwe s¹ dalsze bicia zmiana gracza nie nastêpuje
 				return;
 			}
 		}
 	}
-
 	Player = !Player;
 }
 
 
-// pionek = 50
-// damka =100
-// centrum =8
-// slabsze centrum = 5
+// Funkcja oceniaj¹ca wartoœc stanu gry na podstawie danego stanu planszy
+// W argumentach przekazywany stan planszy oraz dla jakiego gracza dokonujemy oceny
 int heuristicForCheckers(Board board, bool Player) {
-	int value = 0;
+	// Ocene wartoœci danego stanu na planszy dokonuje oceniajaæ 2 kryteria:
+	// - polozenie pionka na planszy -> wyró¿niam œcis³e centrum (5pkt), slabsze centrum (3pkt) oraz obrze¿a (0pkt)
+	// - iloœæ pionków danego rodzaju na planszy -> pionek (40pkt) , damka (100pkt)
+	// Wartoœci zosta³y dobrane na podstawie eksperymentów oraz po przeanalizowaniu strategi stosowanych w warcabach
+	// przez graczy.
+	
+	int value = 0; // zwracana wartoœæ stanu gry
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			
-			if (board(i,j)!=Empty) {
-
+			if (board(i,j)!=Empty) {  
 				switch (board(i, j)) {
 
 				case WhiteMan: {
 					if ((i > 1 && i < 6) && (j > 1 && j < 6)) value -= 3;
 					if ((i > 0 && i < 7) && (j > 0 && j < 7)) value -= 5;
-					value -= 50;
+					value -= 40;
 					break;
 				}
 
@@ -160,7 +162,7 @@ int heuristicForCheckers(Board board, bool Player) {
 				case BlackMan: {
 					if ((i > 1 && i < 6) && (j > 1 && j < 6)) value += 3;
 					if ((i > 0 && i < 7) && (j > 0 && j < 7)) value += 5;
-					value += 50;
+					value += 40;
 					break;
 				}
 				

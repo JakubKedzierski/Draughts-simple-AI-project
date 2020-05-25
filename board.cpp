@@ -1,12 +1,16 @@
 #include "board.hpp"
 #include <iostream>
-#include <iomanip>
 using namespace std;
 
+/* Przetworzenie graficznego ruchu na matematyczny */
 void moveID::TransformID() {
-	x -= 101; y -= 101; x1 -= 101; y1 -= 101;
-	x /= SquareSize; y /= SquareSize; x1 /= SquareSize; y1 /= SquareSize;
+	// wartosci dobrane eksperymentalna metoda poniewaz plansza ma ramke nalezy do poprawnego zoobrazowania pionkow
+	// odj¹æ szerokoœæ ramki od pozycji
+	x -= 101; y -= 101; x1 -= 101; y1 -= 101;  
+	x /= SquareSize; y /= SquareSize; x1 /= SquareSize; y1 /= SquareSize;  // przetworzenie pozycji na pola planszy 8x8
 }
+
+/* Konstuktor bezparametryczny*/
 BoardGraphic::BoardGraphic() {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
@@ -15,6 +19,7 @@ BoardGraphic::BoardGraphic() {
 	}
 }
 
+/* Tworzenie planszy na start gry */
 BoardGraphic::BoardGraphic(bool mode){
 
 	for(int i=0;i<8;i++){
@@ -22,6 +27,8 @@ BoardGraphic::BoardGraphic(bool mode){
 			board[i][j].ChangeType(Empty); small.ChangeType(i, j, Empty);
         }
     }
+
+	/* Stworzenie odpowiednich pionków w odpowiednich polach planszy matematycznej i graficznej*/
 
     for(int i=1;i<8;i+=2){
 		board[0][i] = Pawn(sf::Vector2f(0, i), BlackMan); small.ChangeType(0, i, BlackMan);
@@ -35,12 +42,12 @@ BoardGraphic::BoardGraphic(bool mode){
 		board[7][i] = Pawn(sf::Vector2f(7, i), WhiteMan); small.ChangeType(7, i, WhiteMan); 
     }
 
-	if (!scene.loadFromFile("szachownica1.jpg")) {
+	if (!scene.loadFromFile("szachownica1.jpg")) { // za³adowanie tekstury planszy
 		cerr << "Niepowodzenie wczytania pliku. Najprawdopodobniej w folderze z gra nie znajduje sie plik szachownica.jpg";
 	}
 }
 
-
+/* Wypisanie stanu planszy na stdout -> Uzywane pocz¹tkowo przy debugowaniu*/
 void Board::PrintToStream(){
     for(int i=0;i<8;i++){
 		cout << i << "  |";
@@ -57,31 +64,34 @@ void Board::PrintToStream(){
 	cout << endl;
 }
 
+/* Wykonanie ruchu pionkiem na planszy */
 void Board::Move(moveID m) {
-	board[m.x1][m.y1] = board[m.x][m.y];
-	board[m.x][m.y]=Empty;
+	board[m.x1][m.y1] = board[m.x][m.y]; // przypisanie do nowego pola
+	board[m.x][m.y]=Empty; // poprzedni pole staje siê puste
 
-	if (abs(m.y1 - m.y) == 2) {
+	if (abs(m.y1 - m.y) == 2) { // gdy w ruchu bijemy pionka, nale¿y go usun¹æ z planszy
 		if ((m.y1 - m.y) > 0 && (m.x1 - m.x) > 0) { board[m.x + 1][m.y + 1]=Empty; }
 		else if ((m.y1 - m.y) > 0 && (m.x1 - m.x) < 0) { board[m.x - 1][m.y + 1]=Empty;  }
 		else if ((m.y1 - m.y) < 0 && (m.x1 - m.x) > 0) { board[m.x + 1][m.y - 1]=Empty;  }
 		else { board[m.x - 1][m.y - 1] = Empty;}
 	}
 
-	if (m.x1 == 0 || m.x1 == 7) {
+	if (m.x1 == 0 || m.x1 == 7) { // awans
 		if (board[m.x1][m.y1] == WhiteMan)board[m.x1][m.y1] = WhiteKing;
 		if (board[m.x1][m.y1] == BlackMan)board[m.x1][m.y1] = BlackKing;
 	}
 
 }
 
+/* Ruch reprezentowany graficznie */
 void BoardGraphic::Move(moveID m){
-	small.Move(m);
+	small.Move(m); 
 	board[m.x1][m.y1] = board[m.x][m.y];
-	board[m.x1][m.y1].GetTexture().setPosition(101 + m.y1 * SquareSize, 101 + m.x1 * SquareSize);
+	// zmiana pozycji na planszy graficznej (dodaje wartoœæ szerokoœci ramki)
+	board[m.x1][m.y1].GetTexture().setPosition(101 + m.y1 * SquareSize, 101 + m.x1 * SquareSize); 
 	board[m.x][m.y].ChangeType(Empty); 
 	
-	if (abs(m.y1 - m.y) == 2) {
+	if (abs(m.y1 - m.y) == 2) {  // gdy w ruchu bijemy pionka, nale¿y go usun¹æ z planszy
 		if ((m.y1 - m.y) > 0 && (m.x1 - m.x) > 0) { board[m.x + 1][m.y + 1].ChangeType(Empty); }
 		else if((m.y1 - m.y) > 0 && (m.x1 - m.x) < 0) { board[m.x - 1][m.y + 1].ChangeType(Empty); }
 		else if((m.y1 - m.y) < 0 && (m.x1 - m.x) > 0) { board[m.x + 1][m.y - 1].ChangeType(Empty); }
@@ -89,27 +99,33 @@ void BoardGraphic::Move(moveID m){
 	}
 	
 	if (m.x1 == 0 || m.x1 == 7) {
-		Upgrade(m.x1, m.y1);
+		Upgrade(m.x1, m.y1); // awans zwyk³ego pionka na damkê
 	}
 
 }
 
+/*
+   Funkcja zwracaj¹ca mo¿liwe ruchy wybranego gracza przy danym statusie planszy
+   Funkcja nie uwzglêdnia wystêpowania biæ -> od tego jest funkcja CheckForBeatings 
+ */
 vector<moveID> Board::PossibleMove(bool Player){
-	vector<moveID> Possible;
+	vector<moveID> Possible; //kontener przechowuj¹cy mo¿liwe ruchy
 
-	// 4 przypadki  ruchu
+	// 4 przypadki  ruchu -> lewo góra, lewo dó³, prawo góra, prawo dó³
+	// dla odpowiednich warunków dodajemy odpowiedni ruchy do kontenera
+	// i,j - reprezentuj¹ pola planszy
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (board[i][j] != Empty) {
 
 				if ((side(i,j) && Player) || ((board[i][j] == BlackKing) && !Player)) {
-					if (i - 1 >= 0 && j + 1 < 8) {
+					if (i - 1 >= 0 && j + 1 < 8) {   // prawo góra
 						if (board[i - 1][j + 1]==Empty) {
 							Possible.push_back(moveID(i, j, i - 1, j + 1));
 						}
 					}
-					if (i - 1 >= 0 && j - 1 >= 0) {
+					if (i - 1 >= 0 && j - 1 >= 0) { // lewo góra
 						if (board[i - 1][j - 1] == Empty) {
 							Possible.push_back(moveID(i, j, i - 1, j - 1));
 						}
@@ -117,12 +133,12 @@ vector<moveID> Board::PossibleMove(bool Player){
 				}
 
 				if (((board[i][j] == WhiteKing) && Player) || (!side(i, j) && !Player)) {
-					if (i + 1 < 8 && j - 1 >= 0) {
+					if (i + 1 < 8 && j - 1 >= 0) { // lewo dó³
 						if (board[i + 1][j - 1] == Empty) {
 							Possible.push_back(moveID(i, j, i + 1, j - 1));
 						}
 					}
-					if (i + 1 < 8 && j + 1 < 8) {
+					if (i + 1 < 8 && j + 1 < 8) { // prawo dó³
 						if (board[i + 1][j + 1] == Empty) {
 							Possible.push_back(moveID(i, j, i + 1, j + 1));
 						}
@@ -137,17 +153,22 @@ vector<moveID> Board::PossibleMove(bool Player){
 	return Possible;
 }
 
+/* Funkcja sprawdzaj¹ca czy na planszy s¹ jakieœ bicia dla danego gracza. Bicia w grze s¹ obowi¹zkowe*/
 vector<moveID> Board::CheckForBeatings(bool Player) {
 	vector<moveID> beating;
 	
-	// 8 przypadkow bicia
+	// 4 przypadki bicia, w tym uwzglêdniam bicia damek w 4 strony, bicia pionków w 2 strony
+	// i, j - pozycje na planszy
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			if (board[i][j] != Empty) {
 
+				// Rozpatruje wszystkie przypadki mo¿liwego bicia, zarówno dla damek jak i pionków
+
 				if ((side(i, j) && Player) || ((board[i][j] == BlackKing) && !Player)) {
-					if (i - 2 >= 0 && j + 2 < 8) {
+					if (i - 2 >= 0 && j + 2 < 8) {// prawo góra
+						
 						if (board[i - 2][j + 2]== Empty && board[i - 1][j + 1] != Empty) {
 
 							if (Player) {
@@ -164,7 +185,7 @@ vector<moveID> Board::CheckForBeatings(bool Player) {
 						}
 					}
 
-					if (i - 2 >= 0 && j - 2 >= 0) {
+					if (i - 2 >= 0 && j - 2 >= 0) { // lewo góra
 						if (board[i - 2][j - 2] == Empty && board[i - 1][j - 1] != Empty) {
 
 							if (Player) {
@@ -184,7 +205,7 @@ vector<moveID> Board::CheckForBeatings(bool Player) {
 
 				if (((board[i][j] == WhiteKing) && Player) || (!side(i, j) && !Player)) {
 
-					if (i + 2 < 8 && j - 2 >= 0) {
+					if (i + 2 < 8 && j - 2 >= 0) { // lewo dó³
 						if (board[i + 2][j - 2] == Empty && board[i + 1][j - 1] != Empty) {
 
 							if (Player) {
@@ -200,7 +221,7 @@ vector<moveID> Board::CheckForBeatings(bool Player) {
 						}
 					}
 
-					if (i + 2 < 8 && j + 2 < 8) {
+					if (i + 2 < 8 && j + 2 < 8) { // prawo dó³
 						if (board[i + 2][j + 2] == Empty && board[i + 1][j + 1] != Empty) {
 
 							if (Player) {
@@ -224,6 +245,7 @@ vector<moveID> Board::CheckForBeatings(bool Player) {
 	return beating;
 }
 
+/* Sprawdzenie czy na planszy jest jakiœ pionek danego typu */
 bool Board::IsAny(bool type) {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {

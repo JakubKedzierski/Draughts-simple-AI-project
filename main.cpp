@@ -1,12 +1,9 @@
-#include <iostream>
 #include "checkers.hpp"
-
-using namespace std;
 
 int WinMain()
 {  
 	checkers game;
-	game.InitGame();
+	game.InitGame();  // rozpoczecie gry
 
 	return 0;
 }
