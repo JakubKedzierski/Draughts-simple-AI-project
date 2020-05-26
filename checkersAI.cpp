@@ -137,6 +137,8 @@ int heuristicForCheckers(Board board, bool Player) {
 				switch (board(i, j)) {
 
 				case WhiteMan: {
+					if (i < 2) value -= 10;
+					if (i < 4 && i > 1) value -= 5;
 					if ((i > 1 && i < 6) && (j > 1 && j < 6)) value -= 3;
 					if ((i > 0 && i < 7) && (j > 0 && j < 7)) value -= 5;
 					value -= 40;
@@ -160,6 +162,8 @@ int heuristicForCheckers(Board board, bool Player) {
 				}
 
 				case BlackMan: {
+					if (i > 5) value += 10;
+					if (i>3 && i < 5) value += 5;
 					if ((i > 1 && i < 6) && (j > 1 && j < 6)) value += 3;
 					if ((i > 0 && i < 7) && (j > 0 && j < 7)) value += 5;
 					value += 40;
