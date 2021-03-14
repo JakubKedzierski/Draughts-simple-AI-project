@@ -2,7 +2,6 @@
 
 Zawartość plików:
 - Sprawozdanie___warcaby.pdf : sprawozdanie z projektu
-- *.mp4 : Video przedstawiające kompilacje oraz działanie gry
 - main.cpp : inicjowanie gry
 - checkersAI.* : Klasa oraz funkcje związane z algorytmem SI min-max, funkcja heurystyczna, wierzchołki drzewa rozwiązań
 - checkers.* : Klasa oraz funkcje związane z prowadzeniem gry warcaby, ruchami, interakcją z użytkownikiem, wyświetlaniem okna itd.
