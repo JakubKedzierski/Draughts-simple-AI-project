@@ -215,6 +215,12 @@ Draughts_BINARY_DIR:STATIC=/mnt/b7d44335-8006-431a-bffe-ff532ba133d0/6_semestr/r
 //Value Computed by CMake
 Draughts_SOURCE_DIR:STATIC=/mnt/b7d44335-8006-431a-bffe-ff532ba133d0/6_semestr/repos/Draughts-simple-AI-project
 
+//The directory containing a CMake configuration file for SFML.
+SFML_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/SFML
+
+//Path to a file.
+SFML_DOC_DIR:PATH=SFML_DOC_DIR-NOTFOUND
+
 
 ########################
 # INTERNAL cache entries

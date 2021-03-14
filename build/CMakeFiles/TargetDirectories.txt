@@ -1,3 +1,0 @@
-/mnt/b7d44335-8006-431a-bffe-ff532ba133d0/6_semestr/repos/Draughts-simple-AI-project/build/CMakeFiles/rebuild_cache.dir
-/mnt/b7d44335-8006-431a-bffe-ff532ba133d0/6_semestr/repos/Draughts-simple-AI-project/build/CMakeFiles/Draugths.dir
-/mnt/b7d44335-8006-431a-bffe-ff532ba133d0/6_semestr/repos/Draughts-simple-AI-project/build/CMakeFiles/edit_cache.dir
